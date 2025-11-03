@@ -16,8 +16,11 @@
   @apply bg-zinc-900;
 }
 
-.button{
+.button-amber{
   @apply bg-amber-600 rounded-2xl my-2 py-2 px-4 border-amber-400 border-2 hover:bg-amber-500 shadow-amber-900 shadow-xl font-bold hover:scale-110 ;
+}
+.button{
+  @apply bg-green-600 rounded-2xl my-2 py-2 px-4 border-lime-400 border-2 hover:bg-lime-500 shadow-green-900 shadow-xl font-bold hover:scale-110 ;
 }
 
 body {

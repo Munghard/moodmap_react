@@ -62,6 +62,10 @@ function App() {
 				break;
 		}
 	}
+	function signInWithGoogle()
+	{
+		
+	}
 
 
 
@@ -201,6 +205,7 @@ function App() {
 
 	return (
 		<>
+		<img className='m-2 h-8 w-8' onClick={signInWithGoogle} src='https://www.gstatic.com/marketing-cms/assets/images/d5/dc/cfe9ce8b4425b410b49b7f2dd3f3/g.webp=s48-fcrop64=1,00000000ffffffff-rw'></img>
 			<div className='gap-4 flex flex-col'>
 
 				<Brand />

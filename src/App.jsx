@@ -230,12 +230,13 @@ function App() {
 				console.error(error);
 				return null;
 			}
-			const convertedData = data.map(row => ({
+			const sortedData = data.sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+
+			const convertedData = sortedData.map(row => ({
 				date: row.created_at,
 				user_id: row.user_id,
 				mood: row.mood,
 				comment: row.comment
-
 			}))
 			return convertedData;
 		}
@@ -250,7 +251,7 @@ function App() {
 			const formatted = now.toLocaleString();
 			const entry = { date: formatted, mood: mood, comment: comment };
 
-			const supabaseEntry = { created_at: formatted, user_id: userData.user_id, mood: mood, comment: comment };
+			const supabaseEntry = { user_id: userData.user_id, mood: mood, comment: comment };
 
 			if (userData) {
 				const { data, error } = await supabase.from('entries').insert(supabaseEntry).select();
@@ -341,7 +342,7 @@ function App() {
 				<div className='flex flex-col bg-gray-800 p-4 gap-5 rounded-xl'>
 					<h1 className='text-gray-300 font-bold text-2xl'>Analysis </h1>
 					<div className='flex flex-col bg-gray-900 p-4 rounded-xl items-start'>
-						{data.length === 0 && <h1 className='text-xl'>No data points yet. Start tracking to see your analysis here.</h1> }
+						{data.length === 0 && <h1 className='text-xl'>No data points yet. Start tracking to see your analysis here.</h1>}
 						{variance && <h1 className='text-xl'>Standard deviation: {Math.sqrt(variance).toFixed(1)}</h1>}
 						{median && <h1 className='text-xl'>Median: {median}</h1>}
 						{mean && <h1 className='text-xl'>Mean: {mean.toFixed(1)}</h1>}
@@ -369,7 +370,17 @@ function App() {
 					</div>
 					<LineChart width={600} height={300} data={filteredData}>
 						<CartesianGrid strokeDasharray="3 3" />
-						<XAxis dataKey="date" /><YAxis width="auto" /><Tooltip content={CustomTooltip} /><Legend />
+						<XAxis dataKey="date" tickFormatter={(tick) => {
+							const locale = navigator.language; const d = new Date(tick);
+							return isNaN(d)
+								? tick
+								: d.toLocaleString(locale, {
+									hour: '2-digit',
+									minute: '2-digit',
+									month: 'short',
+									day: 'numeric',
+								});
+						}} /><YAxis width="auto" /><Tooltip content={CustomTooltip} /><Legend />
 						<Line type="monotone" dataKey="mood" stroke="#8884d8" strokeWidth={3} />
 					</LineChart>
 				</div>
@@ -402,12 +413,14 @@ function App() {
 
 	const CustomTooltip = ({ active, payload, label }) => {
 		const isVisible = active && payload && payload.length;
+		const locale = navigator.language;
+		const formatedLabel = new Date(label).toLocaleString(locale)
 		return (
-			<div className="custom-tooltip" style={{ visibility: isVisible ? 'visible' : 'hidden' }}>
+			<div className="custom-tooltip shadow-2xl" style={{ visibility: isVisible ? 'visible' : 'hidden' }}>
 				{isVisible && (
 					<>
 						<div className='bg-gray-700 p-2 rounded-lg w-50'>
-							<p className="label">{`Date: ${label}`}</p>
+							<p className="label">{`Date: ${formatedLabel}`}</p>
 							<p className="label">{`Mood: ${payload[0].value}`}</p>
 							<p className="label">{`Comment: ${payload[0].payload?.comment ?? "none"}`}</p>
 							<span className='text-5xl mx-2' title={payload[0].value}>
